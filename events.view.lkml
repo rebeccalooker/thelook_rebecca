@@ -50,11 +50,19 @@ view: events {
   dimension: latitude {
     type: number
     sql: ${TABLE}.latitude ;;
+    hidden: yes
   }
 
   dimension: longitude {
     type: number
     sql: ${TABLE}.longitude ;;
+    hidden: yes
+  }
+
+  dimension: user_location {
+    type: location
+    sql_latitude: ${TABLE}.latitude ;;
+    sql_longitude: ${TABLE}.longitude ;;
   }
 
   dimension: os {
@@ -102,4 +110,24 @@ view: events {
     type: count
     drill_fields: [id, users.id, users.first_name, users.last_name]
   }
+
+  set: geographic_details {
+    fields: [
+      city,
+      country,
+      user_location,
+      state,
+      zip
+    ]
+  }
+
+  set: device_details {
+    fields: [
+      browser,
+      ip_address,
+      os,
+      uri
+    ]
+  }
+
 }

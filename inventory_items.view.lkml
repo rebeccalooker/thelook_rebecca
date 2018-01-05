@@ -2,6 +2,7 @@ view: inventory_items {
   sql_table_name: public.inventory_items ;;
 
   dimension: id {
+    label: "Inventory Item ID"
     primary_key: yes
     type: number
     sql: ${TABLE}.id ;;
@@ -84,5 +85,22 @@ view: inventory_items {
   measure: count {
     type: count
     drill_fields: [id, product_name, products.id, products.name, order_items.count]
+  }
+
+  set: product_details {
+    fields: [
+      product_brand,
+      product_category,
+      product_department,
+      product_name,
+      product_sku
+    ]
+  }
+
+  set: cost_details {
+    fields: [
+      cost,
+      product_retail_price
+    ]
   }
 }

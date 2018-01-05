@@ -8,26 +8,35 @@ include: "*.dashboard"
 
 datagroup: thelook_rebecca_default_datagroup {
   # sql_trigger: SELECT MAX(id) FROM etl_log;;
-  max_cache_age: "1 hour"
+  max_cache_age: "4 hours"
 }
 
 persist_with: thelook_rebecca_default_datagroup
 
-explore: bsandell {}
-
-explore: company_list {}
-
-explore: distribution_centers {}
-
 explore: events {
   join: users {
+    view_label: "Customers"
     type: left_outer
     sql_on: ${events.user_id} = ${users.id} ;;
     relationship: many_to_one
   }
+
+  join: user_sessions {
+    view_label: "Customer Session Details"
+    type:  inner
+    sql_on: ${events.user_id} = ${user_sessions.user_id} ;;
+    relationship:  one_to_one
+  }
 }
 
 explore: inventory_items {
+  always_filter: {
+    filters: {
+      field: product_distribution_center_id
+      value: "6"
+    }
+    }
+
   join: products {
     type: left_outer
     sql_on: ${inventory_items.product_id} = ${products.id} ;;
@@ -38,11 +47,16 @@ explore: inventory_items {
     type: left_outer
     sql_on: ${products.distribution_center_id} = ${distribution_centers.id} ;;
     relationship: many_to_one
+    fields: [distribution_centers.name,
+             distribution_centers.dc_location]
   }
 }
 
 explore: order_items {
+  sql_always_where: ${created_date} >= '2015-01-01' ;;
+
   join: users {
+    view_label: "Customers"
     type: left_outer
     sql_on: ${order_items.user_id} = ${users.id} ;;
     relationship: many_to_one
@@ -65,6 +79,14 @@ explore: order_items {
     sql_on: ${products.distribution_center_id} = ${distribution_centers.id} ;;
     relationship: many_to_one
   }
+
+  join: events {
+    type: left_outer
+    sql_on: ${users.id} = ${events.user_id} ;;
+    relationship: one_to_many
+    view_label: "Order Activities"
+    fields: [events.geographic_details*]
+  }
 }
 
 explore: products {
@@ -75,4 +97,6 @@ explore: products {
   }
 }
 
-explore: users {}
+explore: users {
+  view_label: "Customers"
+}
