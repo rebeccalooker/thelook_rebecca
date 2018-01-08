@@ -110,9 +110,18 @@ view: order_items {
     type: distance
     start_location_field: distribution_centers.dc_location
     end_location_field: users.delivery_location
+    units: miles
+  }
+
+  dimension: shipment_prep_period {
+    description: "Number of days from order creation to shipment"
+    type: number
+    sql: DATEDIFF(day, ${created_date}, ${shipped_date}) ;;
+    value_format_name: decimal_0
   }
 
   dimension: item_trial_period {
+    description: "Number of days from item delivery to return"
     type: number
     sql: DATEDIFF(day, ${TABLE}.returned_at, ${TABLE}.delivered_at) / 24 ;;
     value_format_name: "decimal_1"
@@ -128,7 +137,7 @@ view: order_items {
     drill_fields: [detail*]
   }
 
-  measure: order_revenue {
+  measure: total_order_revenue {
     type: sum
     sql: ${TABLE}.sale_price ;;
     value_format_name: usd
@@ -145,20 +154,28 @@ view: order_items {
 
   measure: average_order_revenue {
     type: number
-    sql: ${order_revenue} / ${count} ;;
+    sql: ${total_order_revenue} / ${count} ;;
     value_format_name: usd
     drill_fields: [detail*]
   }
 
   # ----- Gets error about dividing by zero -----
-##  measure: order_ratio {
-##    label: "Total-to-Average Ratio"
-##    description: "Ratio of total order amount to average order amount"
-##    type: number
-##    sql: ${order_revenue} / ${average_order_revenue} ;;
-##    value_format_name: decimal_3
-##    drill_fields: [detail*, -inventory_items.id, -inventory_items.product_name]
-##  }
+  measure: order_ratio {
+    label: "Total-to-Average Ratio"
+    description: "Ratio of total order amount to average order amount"
+    type: number
+    sql: ${total_order_revenue} / (${average_order_revenue}+0.00001) ;;
+    value_format_name: decimal_3
+    drill_fields: [detail*, -inventory_items.id, -inventory_items.product_name]
+  }
+
+  measure: total_shipment_distance {
+    description: "Total shipment distance across all orders, in miles"
+    type: sum
+    sql: ${shipment_distance} ;;
+    value_format_name: decimal_1
+    drill_fields: [detail*]
+  }
 
   # ----- Gets error about inventory_items table -----
 ##  measure: item_profit {

@@ -40,7 +40,7 @@ view: user_sessions {
   }
 
   dimension: event_date {
-    label: "Website Activity Timestamp"
+    label: "Activity Date"
     description: "Date of user activity"
     type: date
     sql:  ${TABLE}.event_date ;;

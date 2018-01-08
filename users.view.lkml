@@ -9,8 +9,13 @@ view: users {
   }
 
   dimension: age {
+    type: number
+    sql: ${TABLE}.age ;;
+  }
+
+  dimension: age_tier {
     type: tier
-    tiers: [10, 18, 36, 66]
+    tiers: [10, 20, 30, 40, 50, 60]
     style:  integer
     sql: ${TABLE}.age ;;
   }
@@ -67,6 +72,7 @@ view: users {
   dimension: first_name {
     type: string
     sql: ${TABLE}.first_name ;;
+    hidden: yes
   }
 
   dimension: gender {
@@ -77,6 +83,12 @@ view: users {
   dimension: last_name {
     type: string
     sql: ${TABLE}.last_name ;;
+    hidden: yes
+  }
+
+  dimension: full_name {
+    type: string
+    sql: ${first_name} || ' ' || ${last_name} ;;
   }
 
   dimension: latitude {
@@ -114,12 +126,13 @@ view: users {
 
   measure: count {
     type: count
-    drill_fields: [id, first_name, last_name, events.count, order_items.count]
+    drill_fields: [id, full_name, age, order_items.count]
   }
 
-  measure: average {
+  measure: average_age {
     type: average
+    sql: users.age ;;
     precision: 2
-    drill_fields: [id, first_name, last_name, age]
+    drill_fields: [id, full_name, age, order_items.count]
   }
 }

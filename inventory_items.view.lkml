@@ -87,6 +87,25 @@ view: inventory_items {
     drill_fields: [id, product_name, products.id, products.name, order_items.count]
   }
 
+  measure: total_cost {
+    type: sum
+    sql: ${cost} ;;
+    drill_fields: [id, product_name, order_items.count]
+  }
+
+  measure: total_retail_price {
+    type: sum
+    sql: ${product_retail_price} ;;
+    drill_fields: [id, product_name, order_items.count]
+  }
+
+  measure: markup_percentage {
+    type: number
+    sql: (100 * (${total_retail_price} - ${total_cost})) / ${total_cost} ;;
+    value_format_name: decimal_2
+    drill_fields: [id, product_name, order_items.count]
+  }
+
   set: product_details {
     fields: [
       product_brand,
