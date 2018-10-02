@@ -19,6 +19,8 @@ view: order_items {
     timeframes: [
       raw,
       time,
+      minute,
+      hour,
       date,
       week,
       month,
@@ -26,6 +28,31 @@ view: order_items {
       year
     ]
     sql: ${TABLE}.created_at ;;
+  }
+
+  parameter: timeframe_picker {
+    allowed_value: {
+      value: "{{ parameter }}"
+    }
+    label: "Date Granularity"
+    type: string
+    allowed_value: { value: "Month" }
+    allowed_value: { value: "Day" }
+    allowed_value: { value: "Hour" }
+    allowed_value: { value: "Minute" }
+    default_value: "Hour"
+  }
+
+  dimension: created_dynamic {
+    description: "Use this with Date Granularity filter"
+    type: string
+    sql:
+    CASE
+    WHEN {% parameter timeframe_picker %} = 'Month' THEN ${created_month}
+    WHEN {% parameter timeframe_picker %} = 'Day' THEN  TO_CHAR(${created_date}, 'YYYY-MM-DD')
+    WHEN {% parameter timeframe_picker %} = 'Hour' THEN ${created_hour}
+    WHEN {% parameter timeframe_picker %} = 'Minute' THEN ${created_minute}
+    END ;;
   }
 
   dimension: order_id {

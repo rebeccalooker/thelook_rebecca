@@ -53,6 +53,12 @@ explore: inventory_items {
 }
 
 explore: order_items {
+  always_filter: {
+    filters: {
+      field: created_time
+      value: "7 days"
+    }
+  }
   sql_always_where: ${created_date} >= '2015-01-01' ;;
 
   join: users {
