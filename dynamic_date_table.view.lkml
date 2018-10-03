@@ -1,7 +1,7 @@
 
 view: dt_month {
+  # this builds once a month
   derived_table: {
-    persist_for: "730 hours" # this builds once a month
     sql:
     SELECT DATE_TRUNC('month', order_items.created_at) as dt_date, count(*) as dt_count
     FROM order_items
@@ -41,9 +41,6 @@ view: dynamic_time_dt {
     sql_table_name: {% if date_filter_diff.value > 30 %} (SELECT * FROM ${dt_month.SQL_TABLE_NAME})
                     {% elsif date_filter_diff.value > 7 %} (SELECT * FROM ${dt_week.SQL_TABLE_NAME})
                     {% else %} (SELECT * FROM ${dt_day.SQL_TABLE_NAME}) {% endif %};;
-    # sql_table_name: {% if date_filter_diff.value > 30 %} ${dt_month.SQL_TABLE_NAME} {% endif %}
-    #                 {% if date_filter_diff.value > 7 %} ${dt_week.SQL_TABLE_NAME} {% endif %}
-    #                 {% if date_filter_diff.value > 1 %} ${dt_day.SQL_TABLE_NAME} {% endif %} ;;
 
 
   filter: date_filter {type: date}
