@@ -13,6 +13,12 @@ datagroup: thelook_rebecca_default_datagroup {
 
 persist_with: thelook_rebecca_default_datagroup
 
+explore: dynamic_time_dt {
+  join: date_granularity {
+    type: cross
+  }
+}
+
 explore: events {
   join: users {
     view_label: "Customers"

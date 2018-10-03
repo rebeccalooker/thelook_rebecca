@@ -36,7 +36,7 @@ view: dt_day {
   }
 }
 
-explore: dynamic_time_dt {}
+
 view: dynamic_time_dt {
     sql_table_name: {% if date_filter_diff.value > 30 %} (SELECT * FROM ${dt_month.SQL_TABLE_NAME})
                     {% elsif date_filter_diff.value > 7 %} (SELECT * FROM ${dt_week.SQL_TABLE_NAME})
@@ -52,10 +52,11 @@ view: dynamic_time_dt {
   }
 
   dimension: dynamic_time_dimension {
-    sql: {% if date_filter_diff.value >= 30 %} ${all_of_the_times_month}
-          {% elsif date_filter_diff.value <= 7 AND date_filter_diff.value > 1 %} ${all_of_the_times_week}
-          {% else %} ${all_of_the_times_date} {% endif %} ;;
+    sql: {% if date_granularity.value =='Month' %} ${all_of_the_times_month}
+          {% elsif date_granularity.value =='Week' %} ${all_of_the_times_week}
+          {% elsif date_granularity.value =='Day' %} ${all_of_the_times_date} {% endif %} ;;
   }
+
 
   dimension_group: all_of_the_times {
     # hidden: yes
@@ -74,4 +75,15 @@ view: dynamic_time_dt {
     sql: ${TABLE}.dt_count ;;
   }
 
+}
+
+view: date_granularity {
+  derived_table: {
+  sql:
+      {% if dynamic_time_dt.date_filter_diff.value > 30 %} (SELECT 'Month' UNION SELECT 'Week')
+      {% elsif dynamic_time_dt.date_filter_diff.value > 7 %} (SELECT 'Week' UNION SELECT 'Day')
+      {% else %} (SELECT 'Day' UNION SELECT 'Hour') {% endif %}
+      ;;
+}
+dimension: date_granularity {}
 }
